@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow-app xmlns="uri:oozie:workflow:1.0" name="flightdataanalysisMR_WorkflowApp">
+	<start to="flightCancellationReasonMR" />
+	<action name="flightCancellationReasonMR">
+		<map-reduce>
+	         <resource-manager>${resourceManager}</resource-manager>
+            <name-node>${nameNode}</name-node>
+			<prepare>
+				<delete path="${nameNode}/user/${wf:user()}/${examplesRoot}/${outputDir}_cancellation" />
+			</prepare>
+			<configuration>
+				<property>
+					<name>mapred.job.queue.name</name>
+					<value>${queueName}</value>
+				</property>
+				<property>
+					<name>mapreduce.map.class</name>
+					<value>flightdataanalysis.cancellationsReasonMap</value>
+				</property>
+        <!-- New API for map -->
+        <property>
+          <name>mapred.mapper.new-api</name>
+            <value>true</value>
+          </property>
+
+          <!-- New API for reducer -->
+          <property>
+            <name>mapred.reducer.new-api</name>
+            <value>true</value>
+          </property>
+				<property>
+					<name>mapreduce.reduce.class</name>
+					<value>flightdataanalysis.cancellationsReasonReduce</value>
+				</property>
+			
+      
+    <property>
+                 <name>mapred.output.key.class</name>
+                 <value>org.apache.hadoop.io.Text</value>
+              </property>
+              <property>
+                 <name>mapred.output.value.class</name>
+                 <value>org.apache.hadoop.io.IntWritable</value>
+              </property>
+        
+				<property>
+					<name>mapred.map.tasks</name>
+					<value>1</value>
+				</property>
+				<property>
+					<name>mapred.input.dir</name>
+					<value>/user/${wf:user()}/${examplesRoot}/${inputDir}</value>
+				</property>
+				<property>
+					<name>mapred.output.dir</name>
+					<value>/user/${wf:user()}/${examplesRoot}/${outputDir}_cancellation</value>
+				</property>
+			</configuration>
+		</map-reduce>
+		<ok to="avgAirportTaxiInTimePerFlightMR" />
+		<error to="fail" />
+	</action>
+	<action name="avgAirportTaxiInTimePerFlightMR">
+		<map-reduce>
+		 <resource-manager>${resourceManager}</resource-manager>
+            <name-node>${nameNode}</name-node>
+			<prepare>
+				<delete path="${nameNode}/user/${wf:user()}/${examplesRoot}/${outputDir}_taxiin" />
+			</prepare>
+			<configuration>
+				
+				<property>
+					<name>mapred.job.queue.name</name>
+					<value>${queueName}</value>
+				</property>
+				<property>
+					<name>mapreduce.map.class</name>
+					<value>flightdataanalysis.avgAirportTaxiInTimePerFlightMap</value>
+				</property>
+        <!-- New API for map -->
+                  <property>
+    <name>mapred.mapper.new-api</name>
+    <value>true</value>
+                    </property>
+
+                        <!-- New API for reducer -->
+                <property>
+                      <name>mapred.reducer.new-api</name>
+                  <value>true</value>
+                  </property>
+				<property>
+					<name>mapreduce.reduce.class</name>
+					<value>flightdataanalysis.avgAirportTaxiTimePerFlightReduce</value>
+				</property>
+        
+  <property>
+                  <name>mapred.output.key.class</name>
+                  <value>org.apache.hadoop.io.Text</value>
+              </property>
+              <property>
+                  <name>mapred.output.value.class</name>
+                  <value>org.apache.hadoop.io.IntWritable</value>
+              </property>
+        
+        
+        
+				<property>
+					<name>mapred.map.tasks</name>
+					<value>1</value>
+				</property>
+				<property>
+					<name>mapred.input.dir</name>
+				<value>/user/${wf:user()}/${examplesRoot}/${inputDir}</value>
+				</property>
+				<property>
+					<name>mapred.output.dir</name>
+					<value>/user/${wf:user()}/${examplesRoot}/${outputDir}_taxiin</value>
+				</property>
+			</configuration>
+		</map-reduce>
+		<ok to="onscheduleProbablityMR" />
+		<error to="fail" />
+	</action>
+	<action name="onscheduleProbablityMR">
+		<map-reduce>
+		 <resource-manager>${resourceManager}</resource-manager>
+            <name-node>${nameNode}</name-node>
+			<prepare>
+				<delete path="${nameNode}/user/${wf:user()}/${examplesRoot}/${outputDir}_schedule" />
+			</prepare>
+			<configuration>
+			<property>
+					<name>mapred.job.queue.name</name>
+					<value>${queueName}</value>
+				</property>
+				<property>
+					<name>mapreduce.map.class</name>
+					<value>flightdataanalysis.scheduleProbablityMap</value>
+				</property>
+        <!-- New API for map -->
+        <property>
+          <name>mapred.mapper.new-api</name>
+          <value>true</value>
+        </property>
+
+        <!-- New API for reducer -->
+        <property>
+          <name>mapred.reducer.new-api</name>
+          <value>true</value>
+          </property>
+				<property>
+					<name>mapreduce.reduce.class</name>
+					<value>flightdataanalysis.scheduleProbablityReduce</value>
+				</property>
+        
+        
+         <property>
+                   <name>mapred.output.key.class</name>
+                   <value>org.apache.hadoop.io.Text</value>
+                </property>
+                <property>
+                   <name>mapred.output.value.class</name>
+                   <value>org.apache.hadoop.io.IntWritable</value>
+                </property>
+      
+        
+        
+        
+				<property>
+					<name>mapred.map.tasks</name>
+					<value>1</value>
+				</property>
+				<property>
+					<name>mapred.input.dir</name>
+					<value>/user/${wf:user()}/${examplesRoot}/${inputDir}</value>
+				</property>
+				<property>
+					<name>mapred.output.dir</name>
+					<value>/user/${wf:user()}/${examplesRoot}/${outputDir}_schedule</value>
+				</property>
+			</configuration>
+		</map-reduce>
+		<ok to="end" />
+		<error to="fail" />
+	</action>
+	<kill name="fail">
+		<message>flightdataanalysisMR_WorkflowApp Program failed with error message[${wf:errorMessage(wf:lastErrorNode())}]
+		</message>
+	</kill>
+	<end name="end" />
+</workflow-app>
